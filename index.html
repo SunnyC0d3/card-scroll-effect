@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        /* http://meyerweb.com/eric/tools/css/reset/ 
+        v2.0 | 20110126
+        License: none (public domain)
+        */
+
+        html, body, div, span, applet, object, iframe,
+        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code,
+        del, dfn, em, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, let,
+        b, u, i, center,
+        dl, dt, dd, ol, ul, li,
+        fieldset, form, label, legend,
+        table, caption, tbody, tfoot, thead, tr, th, td,
+        article, aside, canvas, details, embed, 
+        figure, figcaption, footer, header, hgroup, 
+        menu, nav, output, ruby, section, summary,
+        time, mark, audio, video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+        /* HTML5 display-role reset for older browsers */
+        article, aside, details, figcaption, figure, 
+        footer, header, hgroup, menu, nav, section {
+            display: block;
+        }
+        body {
+            line-height: 1;
+        }
+        ol, ul {
+            list-style: none;
+        }
+        blockquote, q {
+            quotes: none;
+        }
+        blockquote:before, blockquote:after,
+        q:before, q:after {
+            content: '';
+            content: none;
+        }
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        section {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+        .blue {
+            padding-top: 500px;
+            padding-left: 1000px;
+            background-color: lightblue;
+        }
+        .green {
+            padding-top: 500px;
+            background-color: lightgreen;
+        }
+        .red {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: lightcoral;
+        }
+        .yellow {
+            background-color: lightgoldenrodyellow;
+        }
+        .image {
+            position: relative;
+            max-width: 300px;
+            z-index: 1;
+        }
+        .image img {
+            width: 100%;
+            height: auto;
+        }
+        .green .image {
+            margin-left: 300px;
+        }
+        span {
+            position: absolute;
+            top: 0;
+            left: 746px;
+            display: block;
+            width: 2px;
+            height: 1416.3748168945312px;
+            background-color: red;
+        }
+        span:nth-child(2) {
+            left: 1046px;
+        }
+        h1 {
+            font-size: 5rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-align: center;
+        }
+        .visible {
+            visibility: visible;
+        }
+        .hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <section class="blue">
+        <div class="starting">
+            <div class="image visible">
+                <img src="1.png" alt="" />
+            </div>
+        </div>
+    </section>
+
+    <section class="green">
+        <div class="starting">
+            <div class="image hidden" data-rotation="80">
+                <img src="1.png" alt="" />
+            </div>
+        </div>
+    </section>
+
+    <section class="red">
+        <div class="starting">
+            <div class="image hidden" data-rotation="180">
+                <img src="1.png" alt="" />
+            </div>
+        </div>
+    </section>
+
+    <section class="yellow" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+        <div class="starting">
+            <h1>Thanks for checking this out!</h1>
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.2/TweenMax.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.2/TimelineMax.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.6/ScrollMagic.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.6/plugins/animation.gsap.min.js"></script>
+    <script src="addIndicators.js"></script>
+
+    <script>
+
+        //const controller = new ScrollMagic.Controller({ addIndicators: true });
+        const controller = new ScrollMagic.Controller();
+        let starting = document.querySelectorAll('.starting');
+        let sectionRed = document.querySelector('section.red');
+
+        let images = document.querySelectorAll('.image');
+
+        starting.forEach((starter, i) => {
+
+            let image = '';
+            let nextImage = '';
+
+            if (starter.querySelector('.image')) {
+                image = starter.querySelector('.image');
+            }
+            
+            if(i + 1 <= (starting.length - 1)) {
+                nextImage = starting[i + 1].querySelector('.image');
+            }
+
+            if(image && nextImage) {
+
+                let tl = new TimelineMax();
+                let x = 0;
+                let y = nextImage.getBoundingClientRect().top - image.getBoundingClientRect().top;
+
+                let keyRotation = nextImage.dataset.rotation ? nextImage.dataset.rotation : 0;
+
+                if(nextImage.getBoundingClientRect().left === 0 && image.getBoundingClientRect().left != 0) {
+                    x = -nextImage.getBoundingClientRect().right;
+                } else {
+                    x = nextImage.getBoundingClientRect().right - image.getBoundingClientRect().right;
+                }
+
+                tl.to(image, 10, { y: y, x: x, rotation: keyRotation });
+
+                const scene = new ScrollMagic.Scene({
+                    triggerElement: starter,
+                    triggerHook: 'onLeave',
+                    duration: '100%',
+                })
+                .setTween(tl)
+                .addTo(controller);
+
+                scene.on('progress', (event) => {
+                    addRemoveClass(image, nextImage, 'visible');
+                    addRemoveClass(nextImage, image, 'hidden');
+                });
+
+                scene.on('end', (event) => {
+                    if (nextImage.dataset.rotation) {
+                        tl.set(nextImage, { rotation: nextImage.dataset.rotation });
+                    }
+                    addRemoveClass(nextImage, image, 'visible');
+                    addRemoveClass(image, nextImage, 'hidden');
+                });
+            }
+            
+        });
+
+        let tl2 = new TimelineMax();
+
+        tl2.to(images[2], 10, { rotation: 0 });
+
+        const scene = new ScrollMagic.Scene({
+            triggerElement: sectionRed,
+            triggerHook: 'onLeave',
+            duration: '100%',
+        })
+        .setPin(sectionRed)
+        .setTween(tl2)
+        .addTo(controller);
+
+        function addRemoveClass(elementToAdd, elementToRemove, customClass) {
+            elementToAdd.classList.add(customClass);
+            elementToRemove.classList.remove(customClass);
+        }
+
+    </script>    
+</body>
+</html>
